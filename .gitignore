@@ -9,6 +9,8 @@ out/
 
 # Docs
 docs/
+node_modules/
+lib/
 
 # Dotenv file
 .env
