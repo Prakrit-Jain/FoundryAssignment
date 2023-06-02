@@ -6,19 +6,25 @@ import "forge-std/Test.sol";
 import "../src/interfaces/IAsset.sol";
 import "../src/interfaces/IVault.sol";
 import "../src/interfaces/IERC20.sol";
+import "../src/interfaces/IBalancerPool.sol";
 import "../src/libraries/Helpers.sol";
 
 contract ContractTest is Test {
-    address USDC_ETH_MIRROR = 0x47e4F578Baa6A63891Ee5Ba2D08fcf0c5b8d8307;
-    address USDC_AVAX_MIRROR = 0xb83dca5964b7FF263279c9f5f3E8E38728ea26Ba;
-    address AXON_TEST_KAI = 0x1Fa37818ae2710C23301D94d2BeE37951C2DD55b;
-    address AXON_USDCETH_KAI_BPT = 0x1D2BBc35f7aCe0b2132C888552143c3dc54161Ca;
-    address AXON_USDCAVAX_KAI_BPT = 0x6978997B5b6061A84d77Bd539F4ff9AECf01C27e;
-    address TOKEN_ADMIN = 0x04B0Bff8776D8CC0EF00489940afd9654c67E4C7;
-    address VAULT = 0xf46DF0f6c91a66bBB14960245eEC280719428EDd;
+    address USDC_ETH_MIRROR = vm.envAddress("USDC_ETH_MIRROR");
+    address USDC_AVAX_MIRROR = vm.envAddress("USDC_AVAX_MIRROR");
+    address AXON_TEST_KAI = vm.envAddress("AXON_TEST_KAI");
+    address AXON_USDCETH_KAI_BPT = vm.envAddress("AXON_USDCETH_KAI_BPT");
+    address AXON_USDCAVAX_KAI_BPT = vm.envAddress("AXON_USDCAVAX_KAI_BPT");
+    address TOKEN_ADMIN = vm.envAddress("TOKEN_ADMIN");
+    address VAULT;
+    bytes32 poolIdOfAXON_USDCETH_KAIPool;
+    bytes32 poolIdOfAXON_USDCAVAX_KAIPool;
 
     function setUp() public {
         vm.createSelectFork("khalani");
+        VAULT = IBalancerPool(AXON_USDCETH_KAI_BPT).getVault();
+        poolIdOfAXON_USDCETH_KAIPool = IBalancerPool(AXON_USDCETH_KAI_BPT).getPoolId();
+        poolIdOfAXON_USDCAVAX_KAIPool = IBalancerPool(AXON_USDCAVAX_KAI_BPT).getPoolId();
     }
 
     /**
@@ -44,7 +50,7 @@ contract ContractTest is Test {
         _assets[2] = IAsset(USDC_AVAX_MIRROR);
 
         Helpers.BatchSwapStep memory batchSwap1 = Helpers.BatchSwapStep({
-            poolId: bytes32(0x1d2bbc35f7ace0b2132c888552143c3dc54161ca000000000000000000000001),
+            poolId: poolIdOfAXON_USDCETH_KAIPool,
             assetInIndex: 0,
             assetOutIndex: 1,
             amount: 2800 * (10 ** decimals),
@@ -52,7 +58,7 @@ contract ContractTest is Test {
         });
 
         Helpers.BatchSwapStep memory batchSwap2 = Helpers.BatchSwapStep({
-            poolId: bytes32(0x6978997b5b6061a84d77bd539f4ff9aecf01c27e000000000000000000000000),
+            poolId: poolIdOfAXON_USDCAVAX_KAIPool,
             assetInIndex: 1,
             assetOutIndex: 2,
             amount: 0,
@@ -98,7 +104,7 @@ contract ContractTest is Test {
         IERC20(USDC_ETH_MIRROR).approve(VAULT, 2800 * (10 ** decimals));
 
         Helpers.SingleSwap memory singleSwap = Helpers.SingleSwap({
-            poolId: 0x1d2bbc35f7ace0b2132c888552143c3dc54161ca000000000000000000000001,
+            poolId: poolIdOfAXON_USDCETH_KAIPool,
             kind: Helpers.SwapKind.GivenIn,
             assetIn: IAsset(USDC_ETH_MIRROR),
             assetOut: IAsset(AXON_TEST_KAI),
@@ -144,7 +150,7 @@ contract ContractTest is Test {
         _assets[2] = IAsset(AXON_USDCETH_KAI_BPT);
 
         Helpers.BatchSwapStep memory batchSwap1 = Helpers.BatchSwapStep({
-            poolId: bytes32(0x1d2bbc35f7ace0b2132c888552143c3dc54161ca000000000000000000000001),
+            poolId: poolIdOfAXON_USDCETH_KAIPool,
             assetInIndex: 0,
             assetOutIndex: 2,
             amount: 2800 * (10 ** decimalsKai),
@@ -152,7 +158,7 @@ contract ContractTest is Test {
         });
 
         Helpers.BatchSwapStep memory batchSwap2 = Helpers.BatchSwapStep({
-            poolId: bytes32(0x1d2bbc35f7ace0b2132c888552143c3dc54161ca000000000000000000000001),
+            poolId: poolIdOfAXON_USDCETH_KAIPool,
             assetInIndex: 1,
             assetOutIndex: 2,
             amount: 2800 * (10 ** decimalsEth),
@@ -209,7 +215,7 @@ contract ContractTest is Test {
         IVault vault = IVault(VAULT);
 
         Helpers.BatchSwapStep memory batchSwap1 = Helpers.BatchSwapStep({
-            poolId: bytes32(0x6978997b5b6061a84d77bd539f4ff9aecf01c27e000000000000000000000000),
+            poolId: poolIdOfAXON_USDCAVAX_KAIPool,
             assetInIndex: 0,
             assetOutIndex: 2,
             amount: 2800 * (10 ** decimalsAVAX),
@@ -217,7 +223,7 @@ contract ContractTest is Test {
         });
 
         Helpers.BatchSwapStep memory batchSwap2 = Helpers.BatchSwapStep({
-            poolId: bytes32(0x6978997b5b6061a84d77bd539f4ff9aecf01c27e000000000000000000000000),
+            poolId: poolIdOfAXON_USDCAVAX_KAIPool,
             assetInIndex: 1,
             assetOutIndex: 2,
             amount: 2800 * (10 ** decimalsKai),
@@ -265,7 +271,7 @@ contract ContractTest is Test {
         _assets[2] = IAsset(AXON_TEST_KAI);
 
         Helpers.BatchSwapStep memory batchSwap1 = Helpers.BatchSwapStep({
-            poolId: bytes32(0x1d2bbc35f7ace0b2132c888552143c3dc54161ca000000000000000000000001),
+            poolId: poolIdOfAXON_USDCETH_KAIPool,
             assetInIndex: 0,
             assetOutIndex: 1,
             amount: amountOfBptInForEth,
@@ -273,7 +279,7 @@ contract ContractTest is Test {
         });
 
         Helpers.BatchSwapStep memory batchSwap2 = Helpers.BatchSwapStep({
-            poolId: bytes32(0x1d2bbc35f7ace0b2132c888552143c3dc54161ca000000000000000000000001),
+            poolId: poolIdOfAXON_USDCETH_KAIPool,
             assetInIndex: 0,
             assetOutIndex: 2,
             amount: amountOfBptInForKai,
@@ -323,7 +329,7 @@ contract ContractTest is Test {
         _assets[2] = IAsset(AXON_TEST_KAI);
 
         Helpers.BatchSwapStep memory batchSwap1 = Helpers.BatchSwapStep({
-            poolId: bytes32(0x6978997b5b6061a84d77bd539f4ff9aecf01c27e000000000000000000000000),
+            poolId: poolIdOfAXON_USDCAVAX_KAIPool,
             assetInIndex: 0,
             assetOutIndex: 1,
             amount: amountOfBptInForAVAX,
@@ -331,7 +337,7 @@ contract ContractTest is Test {
         });
 
         Helpers.BatchSwapStep memory batchSwap2 = Helpers.BatchSwapStep({
-            poolId: bytes32(0x6978997b5b6061a84d77bd539f4ff9aecf01c27e000000000000000000000000),
+            poolId: poolIdOfAXON_USDCAVAX_KAIPool,
             assetInIndex: 0,
             assetOutIndex: 2,
             amount: amountOfBptInForKAI,

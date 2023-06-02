@@ -3,7 +3,6 @@ pragma solidity =0.8.19;
 
 import "../interfaces/IAsset.sol";
 
-
 /**
  * @dev A library that provides utility structs and enums for managing swaps and liquidity operations.
  */
