@@ -3,4 +3,6 @@ src = "src"
 out = "out"
 libs = ["lib"]
 
-# See more config options https://github.com/foundry-rs/foundry/tree/master/config
+rpc_endpoints = { khalani = "https://testnet.khalani.network/" }
+
+# See more config options https://github.com/foundry-rs/foundry/tree/master/config 
